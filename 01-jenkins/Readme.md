@@ -27,6 +27,7 @@ echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
 ### Jenkins Install
 
 ```bash
+sudo apt update
 sudo apt install jenkins -y
 sudo systemctl start jenkins
 sudo systemctl enable jenkins
@@ -46,4 +47,20 @@ sudo ufw reload
 ```bash
 http://localhost:8080
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+## [Maven](https://maven.apache.org/download.cgi) Install (JDK 21 is Required)
+
+```bash
+wget https://dlcdn.apache.org/maven/maven-3/3.9.10/binaries/apache-maven-3.9.10-bin.tar.gz
+tar -zxvf apache-maven-3.9.10-bin.tar.gz
+mv apache-maven-3.9.10 maven
+vi ~/.bashrc # Put below two lines here
+MAVEN_HOME=/opt/maven
+PATH=$MAVEN_HOME/bin:$PATH
+export PATH
+source ~/.bashrc
+echo $MAVEN_HOME
+echo $PATH
+mvn -v
 ```
