@@ -55,10 +55,10 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 wget https://dlcdn.apache.org/maven/maven-3/3.9.10/binaries/apache-maven-3.9.10-bin.tar.gz
 tar -zxvf apache-maven-3.9.10-bin.tar.gz
 mv apache-maven-3.9.10 maven
-vi ~/.bashrc # Put below two lines here
-MAVEN_HOME=/opt/maven
-PATH=$MAVEN_HOME/bin:$PATH
-export PATH
+vi ~/.bashrc
+# Put below two lines here, for maven
+export MAVEN_HOME=/opt/maven
+export PATH=$PATH:$HOME/bin:$MAVEN_HOME/bin
 source ~/.bashrc
 echo $MAVEN_HOME
 echo $PATH

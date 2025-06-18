@@ -6,6 +6,7 @@
 sudo apt update
 sudo apt install openjdk-21-jdk -y
 java -version
+sudo apt update
 ```
 
 ### [Download and Install Tomcat 9](https://tomcat.apache.org/download-90.cgi)
@@ -15,6 +16,27 @@ cd /opt
 wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.106/bin/apache-tomcat-9.0.106.tar.gz
 tar -zxvf apache-tomcat-9.0.106.tar.gz
 mv apache-tomcat-9.0.106 tomcat
+vi ~/.bashrc
+#  Put below two lines here, for java & maven
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export MAVEN_HOME=/opt/maven
+export PATH=$PATH:$JAVA_HOME/bin:$MAVEN_HOME/bin
+
+source ~/.bashrc
+echo $JAVA_HOME
+echo $PATH
+mvn -v
+```
+
+```bash
+vi ~/.bashrc
+# Put below two lines here, only for java
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export PATH="$PATH:$JAVA_HOME/bin:$HOME/bin"
+source ~/.bashrc
+echo $JAVA_HOME
+echo $PATH
+mvn -v
 ```
 
 ### Set permission
