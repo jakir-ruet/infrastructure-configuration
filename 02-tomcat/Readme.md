@@ -86,18 +86,19 @@ sudo vi /opt/tomcat/conf/tomcat-users.xml
 <role rolename="manager-script"/>
 <role rolename="manager-jmx"/>
 <role rolename="manager-status"/>
-<user username="admin" password="newAdminPassword" roles="manager-gui, manager-script, manager-jmx, manager-status"/>
+<user username="admin" password="newAdminPassword" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+<user username="deployer" password="newDeployerPassword" roles="manager-script"/>
 <user username="tomcat" password="newTomcatPassword" roles="manager-gui"/>
 ```
 
 ### Restart tomcat services
 
 ```bash
-tomcatdown  
+tomcatdown
 tomcatup
 ```
 
-### Login 
+### Login
 
 ```bash
 http://localhost:8080/
