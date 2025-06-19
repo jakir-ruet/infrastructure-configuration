@@ -1,6 +1,6 @@
-## Tomcat 9 Install
+## Tomcat install and configuration
 
-### Install Java (if not installed)
+### Install Java 21
 
 ```bash
 sudo apt update
@@ -9,98 +9,123 @@ java -version
 sudo apt update
 ```
 
-### [Download and Install Tomcat 9](https://tomcat.apache.org/download-90.cgi)
+### [Download and Install Tomcat 9](https://tomcat.apache.org/download-10.cgi)
 
 ```bash
 cd /opt
-wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.106/bin/apache-tomcat-9.0.106.tar.gz
-tar -zxvf apache-tomcat-9.0.106.tar.gz
-mv apache-tomcat-9.0.106 tomcat
-vi ~/.bashrc
-#  Put below two lines here, for java & maven
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.42/bin/apache-tomcat-10.1.42.tar.gz
+sudo tar -xzf apache-tomcat-10.1.42.tar.gz
+sudo mv apache-tomcat-10.1.42 tomcat
+sudo rm apache-tomcat-10.1.42.tar.gz
+```
+
+### Create Tomcat User (Recommended for Security)
+
+```bash
+sudo useradd -m -U -d /opt/tomcat -s /bin/false tomcat
+sudo chown -R tomcat: /opt/tomcat
+```
+
+### Set Environment Variables > (Recommended)
+
+```bash
+sudo vi /etc/profile.d/tomcat.sh
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
-export MAVEN_HOME=/opt/maven
-export PATH=$PATH:$JAVA_HOME/bin:$MAVEN_HOME/bin
+export CATALINA_HOME=/opt/tomcat
+export PATH=$PATH:$JAVA_HOME/bin:$CATALINA_HOME/bin
+```
 
-source ~/.bashrc
+### Make executable
+
+```bash
+sudo chmod +x /etc/profile.d/tomcat.sh
+source /etc/profile.d/tomcat.sh
+```
+
+```bash
 echo $JAVA_HOME
-echo $PATH
-mvn -v
+echo $CATALINA_HOME
 ```
 
+#### Version check
+
 ```bash
-vi ~/.bashrc
-# Put below two lines here, only for java
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
-export PATH="$PATH:$JAVA_HOME/bin:$HOME/bin"
-source ~/.bashrc
-echo $JAVA_HOME
-echo $PATH
-mvn -v
+cd /opt/tomcat/bin
+./version.sh
 ```
 
-### Set permission
+### Setup systemd Service (Professional Approach)
 
 ```bash
-cd tomcat/bin/
-chmod +x startup.sh
-chmod +x shutdown.sh
+sudo vi /etc/systemd/system/tomcat.service
 ```
 
-### Making symbolic link for start and stop
+#### Paste
 
 ```bash
-sudo ln -s /opt/tomcat/bin/startup.sh /usr/local/bin/tomcatup
-tomcatup # start the server
-sudo ln -s /opt/tomcat/bin/shutdown.sh /usr/local/bin/tomcatdown
-tomcatdown # stop the server
+[Unit]
+Description=Apache Tomcat 10 Web Application Server
+After=network.target
+
+[Service]
+Type=forking
+User=tomcat
+Group=tomcat
+
+Environment="JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_BASE=/opt/tomcat"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-### Open Firewall (if UFW is active)
+#### Enable and start
 
 ```bash
-sudo ufw enable
-sudo ufw allow 8080
+sudo systemctl daemon-reload
+sudo systemctl enable tomcat
+sudo systemctl start tomcat
+sudo systemctl status tomcat
+```
+
+### Configure Firewall (If UFW is Enabled)
+
+```bash
+sudo ufw allow 8080/tcp
 sudo ufw reload
 ```
 
-### Access Tomcat Web Interface
+### Access Tomcat
 
 ```bash
 http://localhost:8080
-cd /opt/tomcat/conf
-sudo cat server.xml
-sudo vi server.xml
 ```
 
-### Port change (If needed)
+### Configure Tomcat Web Applications
 
-```bash
-cd /opt/tomcat/conf
-sudo cat server.xml
-sudo vi server.xml
-```
-
-### Active for asking User ID Password
+#### Enable Remote Access to `manager` & `host-manager`
 
 ```bash
 find / -name context.xml
-# See
-/opt/tomcat/webapps/host-manager/META-INF/context.xml
-/opt/tomcat/webapps/docs/META-INF/context.xml
-/opt/tomcat/webapps/examples/META-INF/context.xml
-/opt/tomcat/webapps/manager/META-INF/context.xml
-/opt/tomcat/conf/context.xml
+sudo vi /opt/tomcat/webapps/manager/META-INF/context.xml
+sudo vi /opt/tomcat/webapps/host-manager/META-INF/context.xml
 ```
 
-- Here comment `/opt/tomcat/webapps/host-manager/META-INF/context.xml`
-<!-- <Valve className="org.apache.catalina.valves.RemoteAddrValve"
-         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
-- Here comment `/opt/tomcat/webapps/manager/META-INF/context.xml`
-<!-- <Valve className="org.apache.catalina.valves.RemoteAddrValve"
-         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+#### Comment Out/Remove from above two
 
-### Update users information
+```bash
+<Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />
+```
+
+### Add Admin Users
 
 ```bash
 sudo vi /opt/tomcat/conf/tomcat-users.xml
@@ -113,15 +138,14 @@ sudo vi /opt/tomcat/conf/tomcat-users.xml
 <user username="tomcat" password="newTomcatPassword" roles="manager-gui"/>
 ```
 
-### Restart tomcat services
-
 ```bash
-tomcatdown
-tomcatup
+sudo systemctl restart tomcat
 ```
 
-### Login
+### Change Default Port (Optional)
 
 ```bash
-http://localhost:8080/
+sudo vi /opt/tomcat/conf/server.xml
+<Connector port="8085" protocol="HTTP/1.1"
+sudo systemctl restart tomcat
 ```
