@@ -169,7 +169,11 @@ sudo systemctl restart tomcat
 
 ### Configure other associates settings and build the application
 
-### Access from browse
+- Triggers
+- Environment
+- Pre Steps & others.
+
+### Access from browser
 
 ```bash
 http://localhost:8080/webapps
