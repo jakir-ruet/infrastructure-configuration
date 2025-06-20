@@ -9,7 +9,7 @@ java -version
 sudo apt update
 ```
 
-### [Download and Install Tomcat 9](https://tomcat.apache.org/download-10.cgi)
+### [Download and Install Tomcat 10](https://tomcat.apache.org/download-10.cgi)
 
 ```bash
 cd /opt
@@ -149,3 +149,34 @@ sudo vi /opt/tomcat/conf/server.xml
 <Connector port="8085" protocol="HTTP/1.1"
 sudo systemctl restart tomcat
 ```
+
+## Tomcat deployment on container via `Jenkins`
+
+### Install plugin `deploy to container`
+
+- `Deploy to container`
+- `Select Git and give URL & Credential if needed`
+- `Post-build Actions - Deploy war/ear to a container`
+  - `WAR/EAR file`
+  - `Context path`
+- `Jenkins Credentials Provider: Jenkins`
+
+### Give the access permission to only specific IP in tomcat
+
+```bash
+<Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="192\.168\.1\.109" />
+```
+
+### Configure other associates settings and build the application
+
+### Access from browse
+
+```bash
+http://localhost:8080/webapps
+```
+
+### We will get
+
+![Login Screen](/img/war-mvn-login.png)
+
+Using the user ID and Password you will be able to use the application.
