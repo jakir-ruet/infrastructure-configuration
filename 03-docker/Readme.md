@@ -47,9 +47,22 @@ http://localhost:8080/webapps
 ### Create `dockeradmin` user on docker server
 
 ```bash
+cat /etc/group # check docker group
 useradd dockeradmin
 passwd dockeradmin
-cat /etc/group # check docker group
+id dockeradmin
+sudo mkdir -p /home/dockeradmin
+sudo chown dockeradmin:dockeradmin /home/dockeradmin
+```
+
+### How to switch `$ to dockeradmin@docker-server`
+
+```bash
+getent passwd dockeradmin
+dockeradmin:x:1001:1001::/home/dockeradmin:/bin/bash  # should see
+dockeradmin:x:1001:1001::/home/dockeradmin:/bin/sh # not should see, then run
+sudo usermod -s /bin/bash dockeradmin
+sudo su - dockeradmin
 ```
 
 ### making a member `dockeradmin` of `docker` group
@@ -66,7 +79,7 @@ usermod -aG docker dockeradmin # uid=1001(dockeradmin) gid=1001(dockeradmin) gro
 - Add `SSH Servers`
 
 ```bash
-docker-host # Name
+docker-server # Name
 192.168.1.111 # Hostname
 dockeradmin
 # click advance &
@@ -80,7 +93,7 @@ dockeradmin
 ```bash
 vi /etc/ssh/sshd_config
 PasswordAuthentication yes
-systemctl restart sshd
+systemctl restart ssh
 # If Success then Apply & Save
 ```
 
