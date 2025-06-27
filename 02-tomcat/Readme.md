@@ -23,6 +23,7 @@ sudo rm apache-tomcat-10.1.42.tar.gz
 
 ```bash
 sudo useradd -m -U -d /opt/tomcat -s /bin/false tomcat
+sudo passwd tomcat
 sudo chown -R tomcat: /opt/tomcat
 ```
 
@@ -64,11 +65,11 @@ sudo vi /etc/systemd/system/tomcat.service
 
 ```bash
 [Unit]
-Description=Apache Tomcat 10 Web Application Server
+Description=Apache Tomcat 9 Web Application Server
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=tomcat
 Group=tomcat
 
@@ -77,9 +78,9 @@ Environment="CATALINA_HOME=/opt/tomcat"
 Environment="CATALINA_BASE=/opt/tomcat"
 Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
 
-ExecStart=/opt/tomcat/bin/startup.sh
-ExecStop=/opt/tomcat/bin/shutdown.sh
-
+ExecStart=/opt/tomcat/bin/catalina.sh run
+ExecStop=/opt/tomcat/bin/catalina.sh stop
+SuccessExitStatus=143
 Restart=on-failure
 
 [Install]
@@ -102,10 +103,43 @@ sudo ufw allow 8080/tcp
 sudo ufw reload
 ```
 
+### Deploy method `one` - using `index.jsp`
+
+```bash
+sudo nano /opt/tomcat/webapps/ROOT/index.jsp
+```
+
+```html
+<%@ page language="java" %>
+<html>
+  <head><title>Tomcat 9 | Welcome to from Tomcat</title></head>
+  <body>
+    <h1>Hello, Welcome to from Tomcat 9!</h1>
+  </body>
+</html>
+```
+
+```bash
+sudo systemctl restart tomcat
+```
+
 ### Access Tomcat
 
 ```bash
 http://localhost:8080
+```
+
+### Deploy method `two` - using `webapp.war`
+
+- build your Java web app
+- package it as `myapp.war`
+- copy it to `/opt/tomcat/webapps/`
+- Tomcat will auto-deploy it
+
+### Access Tomcat
+
+```bash
+http://localhost:8080/myapp
 ```
 
 ### Configure Tomcat Web Applications

@@ -108,22 +108,13 @@ sudo mkdir -p /home/ansadmin
 sudo chown ansadmin:ansadmin /home/ansadmin
 ```
 
-How to switch `$ to ansadmin@docker-server`
-
-```bash
-getent passwd ansadmin
-ansadmin:x:1001:1001::/home/ansadmin:/bin/bash  # should see
-ansadmin:x:1001:1001::/home/ansadmin:/bin/sh # not should see, then run
-sudo usermod -s /bin/bash ansadmin
-sudo su - ansadmin
-```
-
 ### Copy key of docker server
 
 ```bash
 sudo su - ansadmin
 ssh-copy-id ansadmin@docker-server-private-ip
 ssh-copy-id ansadmin@192.168.1.111
+ssh-copy-id ansadmin@localhost
 yes # first time its ask password
 ```
 
@@ -147,3 +138,13 @@ localhost # Mean ansible server
 ansible all -m ping # or
 ansible all -i hosts -m ping
 ```
+
+### Connect to `docker` server to `ansible` server
+
+- Add and Configure `SSH Server`
+- Create item name `deploy-on-container-via-ansible`
+- In `ansible` server `cd/opt` and `mkdir docker`
+- Give ownership `sudo chown -R ansadmin:ansadmin /opt/docker`
+- Check `ls -l /opt` and `cd /opt/docker`, `pwd`
+- Remote directory `/opt/docker`
+- `Apply`, `Save` and `Build` the Job.
