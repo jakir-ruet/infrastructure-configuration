@@ -24,6 +24,79 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
+### Create `dockeradmin` user
+
+```bash
+useradd dockeradmin
+passwd dockeradmin
+cat /etc/group
+id dockeradmin
+```
+
+### Assign `dockeradmin`user to `docker` group in docker server
+
+```bash
+usermod -aG docker dockeradmin
+id dockeradmin
+```
+
+### Create `dockeradmin` directory and assign to `dockeradmin` user
+
+```bash
+sudo mkdir -p /home/dockeradmin
+sudo chown dockeradmin:dockeradmin /home/dockeradmin
+```
+
+### Go back to `Jenkins` server for connect each other
+
+- Add `SSH Server` using `Publish over SSH`
+- Name `docker-host`
+- Hostname `Docker Machine IP`
+- Username `Docker User Name`
+- Remote Directory `Where do you put`
+- Go Advance give `Docker server Password`
+- Test check, Save & Apply.
+
+### Allow `PasswordAuthentication yes` in `/etc/ssh/sshd_config`
+
+```bash
+PasswordAuthentication yes
+sudo systemctl enable ssh
+sudo systemctl restart ssh
+sudo systemctl status ssh
+ssh dockeradmin@docker-server-IP
+```
+
+### How to switch `$ to dockeradmin@docker-server`
+
+```bash
+getent passwd dockeradmin
+dockeradmin:x:1001:1001::/home/dockeradmin:/bin/bash  # should see, then okay
+dockeradmin:x:1001:1001::/home/dockeradmin:/bin/sh # not should see, then run
+sudo usermod -s /bin/bash dockeradmin
+ssh dockeradmin@docker-server-IP # or
+sudo su - dockeradmin
+```
+
+- User should change `root` to `dockeradmin`
+
+### In Jenkins portal
+
+- `Source File` must `target/*.war`
+- `Remove Prefix` must `target/`
+- `Remote Directory` must `/home/dockeradmin`
+
+### Run in `/home/dockeradmin`
+
+```bash
+docker stop tomcat9 || true && \
+docker rm tomcat9 || true && \
+docker run -d --name tomcat9 -p 8080:8080 \
+-v /home/dockeradmin/webapp.war:/usr/local/tomcat/webapps/webapp.war \
+tomcat:9
+```
+
+
 ### Install Tomcat image and container (Official image recommended)
 
 ```bash

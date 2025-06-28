@@ -106,7 +106,8 @@ sudo ufw reload
 ### Deploy method `one` - using `index.jsp`
 
 ```bash
-sudo nano /opt/tomcat/webapps/ROOT/index.jsp
+sudo nano /opt/tomcat/webapps/ROOT/index.jsp # for root directory
+sudo nano /opt/tomcat/webapps/webapp/index.jsp # for webapp directory
 ```
 
 ```html
@@ -126,7 +127,8 @@ sudo systemctl restart tomcat
 ### Access Tomcat
 
 ```bash
-http://localhost:8080
+http://localhost:8080 # for root
+http://localhost:8080/webapp # for webapp
 ```
 
 ### Deploy method `two` - using `webapp.war`

@@ -1,6 +1,10 @@
+# Ansible Install & connect `Ansible` server to `Docker` server
+
 ## Ansible Server Install and configuration
 
 ### Install Ansible
+
+**On Ansible Machine** - under `root` user
 
 ```bash
 apt update
@@ -10,23 +14,28 @@ apt install ansible
 ansible --version
 ```
 
+**On Ansible Machine** - under `root` user
+
 #### Active the bash completion support we may install these (If needed)
 
 ```bash
-apt install python3-argcomplete
-activate-global-python-argcomplete3
+sudo apt update
+sudo apt install python3-argcomplete
+# After shell restart work it
 ```
 
-### Create `directory` and `ansadmin` in ansible server
+**On Ansible Machine** - under `root` user
+
+### Create `directory` and `ansadmin`
 
 ```bash
-mkdir /etc/ansible # if not available
 useradd ansadmin
 passwd ansadmin
+mkdir /etc/ansible # if not available
 id ansadmin
-sudo mkdir -p /home/ansadmin
-sudo chown ansadmin:ansadmin /home/ansadmin
 ```
+
+**On Ansible Machine** - under `root` user
 
 ### Add this user in `sudoers` file
 
@@ -34,9 +43,30 @@ sudo chown ansadmin:ansadmin /home/ansadmin
 cat /etc/sudoers
 visudo
 ansadmin ALL=(ALL) NOPASSWD: ALL
+:wq! # saves anyway, Or
+echo "ansadmin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 ```
 
-## Install using the apt repository
+**On Ansible Machine** - under `root` user
+
+### How to switch `Shell (sh)` to `Bash`
+
+```bash
+getent passwd ansadmin
+ansadmin:x:1001:1001::/home/ansadmin:/bin/sh # if see,then
+sudo chsh -s /bin/bash ansadmin # it change from `sh` to `bash`
+getent passwd ansadmin
+sudo mkdir -p /home/ansadmin
+sudo chown ansadmin:ansadmin /home/ansadmin
+sudo su - ansadmin
+exit
+```
+
+## Docker install (It will be connected with docker as target server)
+
+**On Ansible Machine** - under `root` user
+
+### Docker Install
 
 ```bash
 # Add Docker's official GPG key:
@@ -54,21 +84,24 @@ echo \
 sudo apt-get update
 ```
 
-### Docker Install
-
 ```bash
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt update
 ```
+
+**On Ansible Machine** - under `root` user
 
 ### Add the user `ansadmin` to `docker` group
 
 ```bash
 cat /etc/group # check group
-usermod -aG docker ansadmin
-id ansadmin # check group
+usermod -aG docker ansadmin # Assign `ansadmin` user to `docker` group
+id ansadmin # now `ansadmin` user member of `docker` & `ansadmin`
 ```
 
-### Change `PasswordAuthentication yes`, default `PasswordAuthentication yes` we need `yes`
+### Users are allowed to log in using a password over SSH
+
+**On Ansible Machine** - under `root` user
 
 ```bash
 vi /etc/ssh/sshd_config
@@ -76,67 +109,96 @@ PasswordAuthentication yes
 systemctl restart ssh
 ```
 
-### How to switch `$ to ansadmin@docker-server`
-
-```bash
-getent passwd ansadmin
-ansadmin:x:1001:1001::/home/ansadmin:/bin/bash  # should see
-ansadmin:x:1001:1001::/home/ansadmin:/bin/sh # not should see, then run
-sudo usermod -s /bin/bash ansadmin
-sudo su - ansadmin
-```
+**On Ansible Machine** - under `ansadmin` user
 
 ### Create `ssh-key`
 
 ```bash
+sudo su - ansadmin
 ssh-keygen
-pwd
-/home/ansadmin
-ls -la
 cd .ssh/
-ls -la
+ls -la # should see `id_ed25519`, `id_ed25519.pub`
+exit
 ```
 
-### Go back docker server and create same user name `ansadmin` and same `password` I as created on ansible server
+## Docker server configuration
+
+**On Docker Machine** - under `root` user
+
+### Create `directory` and `ansadmin`
 
 ```bash
-cat /etc/group # check docker group
 useradd ansadmin
 passwd ansadmin
+mkdir /etc/ansible # if not available
 id ansadmin
-sudo mkdir -p /home/ansadmin
-sudo chown ansadmin:ansadmin /home/ansadmin
 ```
 
-### Copy key of docker server
+### How to switch `Shell (sh)` to `Bash`
+
+```bash
+getent passwd ansadmin
+ansadmin:x:1001:1001::/home/ansadmin:/bin/sh # if see,then
+sudo chsh -s /bin/bash ansadmin # it change from `sh` to `bash`
+getent passwd ansadmin
+sudo mkdir -p /home/ansadmin
+sudo chown ansadmin:ansadmin /home/ansadmin
+sudo su - ansadmin
+exit
+```
+
+### Login to docker server from `ansible` server
+
+**On Ansible Machine** - under `ansadmin` user
 
 ```bash
 sudo su - ansadmin
-ssh-copy-id ansadmin@docker-server-private-ip
-ssh-copy-id ansadmin@192.168.1.111
-ssh-copy-id ansadmin@localhost
-yes # first time its ask password
+# Here, `192.168.1.112` is docker server IP
+sudo ssh-copy-id ansadmin@192.168.1.112 # if something went wrong
+ssh-copy-id -i ~/.ssh/id_ed25519.pub ansadmin@192.168.1.112
+# Login to `docker` server from `ansible` server over ssh
+sudo ssh ansadmin@192.168.1.112 # Server change from `ansadmin@ansible-server` to `ansadmin@docker-server`
+exit # back to `ansible` server
 ```
 
-### Login - user `ansadmin` user
+### Now make sure ping & hosts configuration
+
+**On Ansible Machine** - under `ansadmin` user
 
 ```bash
-ssh ansadmin@docker-server-private-ip
-ssh ansadmin@192.168.1.111 # It should jamp `Ansible` server to `Docker`
+ping 192.168.1.112
+sudo su - ansadmin
+cd /etc/ansible/
+sudo vi hosts
+[docker_host]
+192.168.1.112  ansible_python_interpreter=/usr/bin/python3 # docker server ip
+localhost  ansible_python_interpreter=/usr/bin/python3 # Mean ansible server
+ansible all -m ping
 ```
 
-### Now make sure ping test of `docker` server from `ansible` server
+**If we not get localhost in ping** then
 
-Work in Ansible Server under root user
+### Copy the SSH key & check again
+
+**On Ansible Machine** - under `ansadmin` user
 
 ```bash
-cd /home/ansible
-vi hosts
-[web]
-192.168.1.11 # docker server ip
-localhost # Mean ansible server
-ansible all -m ping # or
-ansible all -i hosts -m ping
+sudo ssh-copy-id localhost # if something went wrong
+ssh-copy-id -i ~/.ssh/id_ed25519.pub localhost
+ansible all -m ping
+```
+
+### Should see this result
+
+```bash
+localhost | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+192.168.1.112 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
 ```
 
 ### Connect to `docker` server to `ansible` server
