@@ -1,0 +1,38 @@
+---
+- name: Install required dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: present
+    update_cache: true
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: "{{ docker_apt_repo }}"
+    state: present
+
+- name: Install Docker packages
+  apt:
+    name: "{{ docker_packages }}"
+    state: latest
+    update_cache: true
+
+- name: Start and enable Docker
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user to Docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes

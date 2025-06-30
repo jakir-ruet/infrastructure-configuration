@@ -1,0 +1,7 @@
+---
+- name: Install Docker using standard role
+  hosts: docker_host
+  become: true
+
+  roles:
+    - docker
