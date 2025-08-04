@@ -1,3 +1,4 @@
 /.vscode
 /.idea
 /.DS_Store
+/01-servers/01-apache/flask-app/venv/*
