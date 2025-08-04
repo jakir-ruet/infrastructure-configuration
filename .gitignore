@@ -1,4 +1,5 @@
 /.vscode
 /.idea
 /.DS_Store
+/01-servers/02-nginx/express-app/node_modules/*
 /01-servers/01-apache/flask-app/venv/*
