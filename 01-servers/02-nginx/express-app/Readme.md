@@ -1,6 +1,7 @@
-## Getting strated NodeJS Install & Apps Create
+## Getting started NodeJS Install & Apps Create
 
 ### Prepare Ubuntu & Install Node.js
+
 ```bash
 sudo apt update && sudo apt upgrade -y
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
