@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'postgres'
+    static_configs:
+{% for host in groups['postgres'] %}
+      - targets: ['{{ hostvars[host].ansible_host }}:9187']
+{% endfor %}
+
+  - job_name: 'patroni'
+    static_configs:
+{% for host in groups['postgres'] %}
+      - targets: ['{{ hostvars[host].ansible_host }}:8008']
+{% endfor %}

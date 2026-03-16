@@ -1,0 +1,22 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name:
+      - vim
+      - curl
+      - wget
+      - git
+      - python3-psycopg2
+      - python3-pip
+      - ufw
+    state: present
+
+- name: Enable UFW
+  ansible.builtin.ufw:
+    state: enabled
+    rule: allow
+    port: 22

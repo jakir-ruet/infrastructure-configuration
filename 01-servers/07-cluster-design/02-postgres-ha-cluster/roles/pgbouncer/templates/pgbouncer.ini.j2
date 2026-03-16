@@ -1,0 +1,13 @@
+[databases]
+{% for host in groups['postgres'] %}
+postgres = host={{ hostvars[host].ansible_host }} port=5432 user={{ postgres_user }} password={{ postgres_password }}
+{% endfor %}
+
+[pgbouncer]
+listen_addr = *
+listen_port = 6432
+auth_type = md5
+auth_file = /etc/pgbouncer/userlist.txt
+pool_mode = session
+max_client_conn = 1000
+default_pool_size = 20

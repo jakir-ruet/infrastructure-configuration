@@ -1,0 +1,47 @@
+---
+- name: Download etcd
+  ansible.builtin.get_url:
+    url: "https://github.com/etcd-io/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: /tmp/etcd.tar.gz
+
+- name: Extract etcd
+  ansible.builtin.unarchive:
+    src: /tmp/etcd.tar.gz
+    dest: /usr/local/bin/
+    remote_src: yes
+    creates: /usr/local/bin/etcd
+
+- name: Create data directory
+  ansible.builtin.file:
+    path: "{{ etcd_data_dir }}"
+    state: directory
+
+- name: Create systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/etcd.service
+    content: |
+      [Unit]
+      Description=etcd
+      After=network.target
+
+      [Service]
+      Type=notify
+      ExecStart=/usr/local/bin/etcd \
+        --name {{ inventory_hostname }} \
+        --data-dir {{ etcd_data_dir }} \
+        --initial-advertise-peer-urls http://{{ ansible_host }}:2380 \
+        --listen-peer-urls http://{{ ansible_host }}:2380 \
+        --listen-client-urls http://{{ ansible_host }}:2379,http://127.0.0.1:2379 \
+        --advertise-client-urls http://{{ ansible_host }}:2379 \
+        --initial-cluster {% for n in etcd_nodes %}{{ n.name }}=http://{{ n.ip }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
+        --initial-cluster-token {{ etcd_initial_cluster_token }} \
+        --initial-cluster-state new
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start etcd
+  ansible.builtin.systemd:
+    name: etcd
+    enabled: yes
+    state: started

@@ -1,0 +1,47 @@
+---
+- name: Install PostgreSQL
+  ansible.builtin.apt:
+    name:
+      - postgresql-{{ postgres_version }}
+      - postgresql-contrib-{{ postgres_version }}
+      - python3-psycopg2
+    state: present
+
+- name: Install Patroni
+  ansible.builtin.pip:
+    name:
+      - patroni[etcd]
+      - psycopg2-binary
+
+- name: Create Patroni config directory
+  ansible.builtin.file:
+    path: /etc/patroni
+    state: directory
+
+- name: Deploy Patroni config
+  ansible.builtin.template:
+    src: patroni.yml.j2
+    dest: /etc/patroni/patroni.yml
+
+- name: Create Patroni systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/patroni.service
+    content: |
+      [Unit]
+      Description=Patroni PostgreSQL HA
+      After=network.target
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/local/bin/patroni /etc/patroni/patroni.yml
+      Restart=on-failure
+      RestartSec=5s
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start Patroni
+  ansible.builtin.systemd:
+    name: patroni
+    enabled: yes
+    state: started

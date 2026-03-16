@@ -1,0 +1,21 @@
+---
+- name: Install PgBouncer
+  ansible.builtin.apt:
+    name: pgbouncer
+    state: present
+
+- name: Configure PgBouncer
+  ansible.builtin.template:
+    src: pgbouncer.ini.j2
+    dest: /etc/pgbouncer/pgbouncer.ini
+
+- name: Create userlist file
+  ansible.builtin.copy:
+    dest: /etc/pgbouncer/userlist.txt
+    content: '"{{ postgres_user }}" "md5{{ postgres_password | password_hash("md5", postgres_user) }}"'
+
+- name: Enable and start PgBouncer
+  ansible.builtin.systemd:
+    name: pgbouncer
+    enabled: yes
+    state: started

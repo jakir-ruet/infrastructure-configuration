@@ -1,0 +1,11 @@
+postgres_version: 16
+patroni_cluster_name: pg_ha_cluster
+patroni_etcd_hosts:
+  - 192.168.1.117:2379
+  - 192.168.1.118:2379
+  - 192.168.1.119:2379
+postgres_data_dir: /var/lib/postgresql/data
+postgres_user: postgres
+postgres_password: "Sql@054003"
+replication_user: replicator
+replication_password: "Sql@054003"

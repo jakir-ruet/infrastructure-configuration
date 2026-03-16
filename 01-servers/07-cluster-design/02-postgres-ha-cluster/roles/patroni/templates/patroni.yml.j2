@@ -1,0 +1,43 @@
+scope: {{ patroni_cluster_name }}
+namespace: /service/
+name: {{ inventory_hostname }}
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: {{ ansible_host }}:8008
+
+etcd:
+  hosts: {% for h in patroni_etcd_hosts %}{{ h }}{% if not loop.last %},{% endif %}{% endfor %}
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      parameters:
+        max_connections: 200
+        shared_buffers: 256MB
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+  users:
+    {{ replication_user }}:
+      password: {{ replication_password }}
+      options:
+        - replication
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: {{ ansible_host }}:5432
+  data_dir: {{ postgres_data_dir }}
+  bin_dir: /usr/lib/postgresql/{{ postgres_version }}/bin
+  authentication:
+    superuser:
+      username: {{ postgres_user }}
+      password: {{ postgres_password }}
+    replication:
+      username: {{ replication_user }}
+      password: {{ replication_password }}
