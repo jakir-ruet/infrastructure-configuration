@@ -51,17 +51,17 @@ Grafana ------> Dashboards
 
 ### Node Layout (Recommended)
 
-| Node  | Node IP       | Role                 | RAM |Disk|
-| ----- | ------------- | -------------------- |-----|----|
-| node1 | 192.168.1.117 | etcd                 | 2GB |2GB |
-| node2 | 192.168.1.118 | etcd                 | 2GB |2GB |
-| node3 | 192.168.1.119 | etcd                 | 2GB |2GB |
-| node4 | 192.168.1.120 | PostgreSQL + Patroni | 2GB |2GB |
-| node5 | 192.168.1.121 | PostgreSQL + Patroni | 2GB |2GB |
-| node6 | 192.168.1.122 | PostgreSQL + Patroni | 2GB |2GB |
-| node7 | 192.168.1.123 | HAProxy + PgBouncer  | 2GB |2GB |
-| node8 | 192.168.1.124 | Prometheus           | 2GB |2GB |
-| node9 | 192.168.1.125 | Grafana              | 2GB |2GB |
+| Node  | Node IP       | Role                 | RAM | Disk |
+| ----- | ------------- | -------------------- | --- | ---- |
+| node1 | 192.168.1.117 | etcd                 | 2GB | 2GB  |
+| node2 | 192.168.1.118 | etcd                 | 2GB | 2GB  |
+| node3 | 192.168.1.119 | etcd                 | 2GB | 2GB  |
+| node4 | 192.168.1.120 | PostgreSQL + Patroni | 2GB | 2GB  |
+| node5 | 192.168.1.121 | PostgreSQL + Patroni | 2GB | 2GB  |
+| node6 | 192.168.1.122 | PostgreSQL + Patroni | 2GB | 2GB  |
+| node7 | 192.168.1.123 | HAProxy + PgBouncer  | 2GB | 2GB  |
+| node8 | 192.168.1.124 | Prometheus           | 2GB | 2GB  |
+| node9 | 192.168.1.125 | Grafana              | 2GB | 2GB  |
 
 ### Project Folder Structure (Enterprise)
 
@@ -105,6 +105,10 @@ postgres-ha-cluster/
 | 8     | Visualization      | Grafana              | Real-time dashboards  |
 
 ```bash
+ansible all -i inventory/hosts.yml -m ping
+ansible all -i inventory/hosts.yml -m ping -k -K
+# SSH password:        -> jakir login password
+# BECOME password:     -> sudo password
 ansible-playbook -i inventory/hosts.yml playbooks/setup.yml -K
 ```
 

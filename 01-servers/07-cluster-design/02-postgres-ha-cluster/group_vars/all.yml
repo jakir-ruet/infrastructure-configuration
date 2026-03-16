@@ -1,0 +1,3 @@
+etcd_version: "3.5.12"
+postgres_version: "15"
+patroni_version: "3.2.2"
