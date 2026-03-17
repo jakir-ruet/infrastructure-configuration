@@ -1,0 +1,20 @@
+etcd_version: "3.5.12"
+
+etcd_cluster_token: "postgres-ha-cluster"
+etcd_cluster_state: "new"
+
+etcd_data_dir: "/var/lib/etcd"
+
+etcd_client_port: 2379
+etcd_peer_port: 2380
+
+etcd_nodes:
+  - name: etcd1-server
+    ip: 192.168.1.111
+  - name: etcd2-server
+    ip: 192.168.1.112
+
+etcd_initial_cluster: >-
+  {% for node in etcd_nodes %}
+  {{ node.name }}=http://{{ node.ip }}:2380{% if not loop.last %},{% endif %}
+  {% endfor %}

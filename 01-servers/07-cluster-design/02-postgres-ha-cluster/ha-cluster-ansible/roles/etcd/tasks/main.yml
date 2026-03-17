@@ -1,0 +1,94 @@
+---
+- name: Create etcd user
+  ansible.builtin.user:
+    name: etcd
+    system: yes
+    shell: /sbin/nologin
+
+# -----------------------------
+# Download etcd (auto arch detect)
+# -----------------------------
+- name: Download etcd (ARM)
+  ansible.builtin.get_url:
+    url: "https://github.com/etcd-io/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}.tar.gz"
+    dest: /tmp/etcd.tar.gz
+    mode: '0755'
+    force: yes
+    timeout: 60
+  register: download_etcd
+  until: download_etcd is succeeded
+  retries: 3
+  delay: 10
+
+# -----------------------------
+# Extract etcd
+# -----------------------------
+- name: Extract etcd
+  ansible.builtin.unarchive:
+    src: /tmp/etcd.tar.gz
+    dest: /usr/local/bin/
+    remote_src: yes
+    creates: /usr/local/bin/etcd
+
+# -----------------------------
+# Install binaries
+# -----------------------------
+- name: Install etcd binary
+  ansible.builtin.copy:
+    src: "/tmp/etcd-v{{ etcd_version }}-linux-{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}/etcd"
+    dest: /usr/local/bin/etcd
+    mode: '0755'
+    remote_src: yes
+
+- name: Install etcdctl
+  ansible.builtin.copy:
+    src: "/tmp/etcd-v{{ etcd_version }}-linux-{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}/etcdctl"
+    dest: /usr/local/bin/etcdctl
+    mode: '0755'
+    remote_src: yes
+
+# -----------------------------
+# Data directory
+# -----------------------------
+- name: Create data directory
+  ansible.builtin.file:
+    path: "{{ etcd_data_dir }}"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "0755"
+
+# -----------------------------
+# Systemd service
+# -----------------------------
+- name: Create systemd service
+  ansible.builtin.template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    mode: "0644"
+
+# -----------------------------
+# Start service
+# -----------------------------
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Enable and start etcd
+  ansible.builtin.systemd:
+    name: etcd
+    enabled: yes
+    state: restarted
+
+# -----------------------------
+# Verify cluster
+# -----------------------------
+- name: Check etcd cluster health
+  ansible.builtin.shell: |
+    ETCDCTL_API=3 etcdctl --endpoints=http://{{ ansible_host }}:2379 endpoint health
+  register: etcd_health
+  changed_when: false
+
+- name: Show health
+  ansible.builtin.debug:
+    var: etcd_health.stdout
