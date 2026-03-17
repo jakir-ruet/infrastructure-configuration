@@ -319,13 +319,13 @@ patronictl -c /etc/patroni/config.yml list
 
 ```bash
 # Should see
-+ Cluster: postgres (7618246142072547256) ---------------+----+-------------+-----+------------+-----+
-| Member    | Host          | Role    | State            | TL | Receive LSN | Lag | Replay LSN | Lag |
-+-----------+---------------+---------+------------------+----+-------------+-----+------------+-----+
-| postgres1 | 192.168.1.112 | Leader  | running          |  1 |             |     |            |     |
-| postgres2 | 192.168.1.113 | Replica | creating replica |    |     unknown |     |    unknown |     |
-| postgres3 | 192.168.1.114 | Replica | creating replica |    |     unknown |     |    unknown |     |
-+-----------+---------------+---------+------------------+----+-------------+-----+------------+-----+
++ Cluster: postgres (7618246142072547256) --------+----+-------------+-----+------------+-----+
+| Member    | Host          | Role    | State     | TL | Receive LSN | Lag | Replay LSN | Lag |
++-----------+---------------+---------+-----------+----+-------------+-----+------------+-----+
+| postgres1 | 192.168.1.112 | Replica | streaming |  2 |   0/50300C0 |   0 |  0/50300C0 |   0 |
+| postgres2 | 192.168.1.113 | Leader  | running   |  2 |             |     |            |     |
+| postgres3 | 192.168.1.114 | Replica | streaming |  2 |   0/50300C0 |   0 |  0/50300C0 |   0 |
++-----------+---------------+---------+-----------+----+-------------+-----+------------+-----+
 ```
 
 ```bash
