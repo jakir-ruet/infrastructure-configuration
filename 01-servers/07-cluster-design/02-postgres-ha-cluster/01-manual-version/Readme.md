@@ -1,4 +1,4 @@
-## Welcome to High Avalability PostGreSQL Server
+## Welcome to High Avalability PostgreSQL Server
 
 This repository contains the configuration files and scripts to set up a high availability PostgreSQL server using Patroni. The setup includes three nodes: one primary and two replicas, ensuring data redundancy and failover capabilities.
 
