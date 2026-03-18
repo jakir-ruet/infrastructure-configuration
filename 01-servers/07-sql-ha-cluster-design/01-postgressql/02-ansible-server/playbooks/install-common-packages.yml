@@ -1,4 +1,3 @@
----
 - name: Install common packages on all servers
   hosts: all
   become: true

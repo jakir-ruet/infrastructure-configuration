@@ -1,4 +1,4 @@
-# Safe default fallback
+# Variables for all hosts
 common_packages:
   - net-tools
   - curl
