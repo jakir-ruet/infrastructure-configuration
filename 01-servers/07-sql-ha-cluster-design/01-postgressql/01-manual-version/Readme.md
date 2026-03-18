@@ -397,9 +397,9 @@ psql -h 192.168.1.112 -U postgres -d postgres
 
 ```bash
 CREATE TABLE Students(
-	 ID SERIAL PRIMARY KEY,
-	 Name VARCHAR(100) NOT NULL,
-	 Age INT NOT NULL
+  ID SERIAL PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL,
+  Age INT NOT NULL
 );
 ```
 
