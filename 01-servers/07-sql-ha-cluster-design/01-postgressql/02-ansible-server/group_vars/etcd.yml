@@ -1,20 +1,25 @@
-etcd_version: "3.5.12"
+# group_vars/etcd.yml
+etcd_packages:
+  - etcd
+  - etcd-client
 
-etcd_cluster_token: "postgres-ha-cluster"
-etcd_cluster_state: "new"
-
+# Default etcd configuration (safe defaults)
+etcd_name: "etcd-server"
 etcd_data_dir: "/var/lib/etcd"
+etcd_enable_v2: true
 
-etcd_client_port: 2379
-etcd_peer_port: 2380
+# Multi-node cluster
+etcd_initial_cluster:
+  - "etcd1-server=http://192.168.1.111:2380"
+  - "etcd2-server=http://192.168.1.112:2380"
+  - "etcd3-server=http://192.168.1.113:2380"
 
-etcd_nodes:
-  - name: etcd1-server
-    ip: 192.168.1.111
-  - name: etcd2-server
-    ip: 192.168.1.112
+# UFW / firewall rules (optional)
+etcd_ports:
+  - 2379
+  - 2380
 
-etcd_initial_cluster: >-
-  {% for node in etcd_nodes %}
-  {{ node.name }}=http://{{ node.ip }}:2380{% if not loop.last %},{% endif %}
-  {% endfor %}
+etcd_allowed_ips:
+  - { ip: '192.168.1.111', ports: [2379, 2380] }
+  - { ip: '192.168.1.112', ports: [2379, 2380] }
+  - { ip: '192.168.1.113', ports: [2379, 2380] }

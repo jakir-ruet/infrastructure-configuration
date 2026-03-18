@@ -1,8 +1,0 @@
----
-- name: Setup etcd cluster
-  hosts: etcd
-  become: yes
-  vars:
-    etcd_version: "3.5.12"
-  roles:
-    - etcd
