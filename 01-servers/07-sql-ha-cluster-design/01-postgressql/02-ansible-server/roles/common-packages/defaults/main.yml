@@ -1,6 +1,0 @@
-# Safe default fallback
-common_packages:
-  - net-tools
-  - curl
-  - wget
-  - tar

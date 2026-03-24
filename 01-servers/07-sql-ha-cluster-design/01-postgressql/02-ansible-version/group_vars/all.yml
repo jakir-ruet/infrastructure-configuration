@@ -1,6 +1,6 @@
-# Variables for all hosts
 common_packages:
   - net-tools
-  - curl
   - wget
+  - curl
   - tar
+  - zip
