@@ -22,8 +22,8 @@
 | 5   | Postgres2  | postgres2-server  | 192.168.1.115 | PostgreSQL & Patroni               | 2GB | 2GB  |
 | 6   | Postgres3  | postgres3-server  | 192.168.1.116 | PostgreSQL & Patroni               | 2GB | 2GB  |
 | 7   | HAProxy    | haproxy-server    | 192.168.1.117 | Load Balancer for PostgreSQL       | 2GB | 2GB  |
-| 8   | Prometheus | prometheus-server | 192.168.1.118 | Monitoring (collects metrics)      | 2GB | 2GB  |
-| 9   | Grafana    | grafana-server    | 192.168.1.119 | Visualization (queries Prometheus) | 2GB | 2GB  |
+| 8   | Prometheus | prometheus-server | 192.168.1.118 | Monitoring (Collects Metrics)      | 2GB | 2GB  |
+| 9   | Grafana    | grafana-server    | 192.168.1.119 | Visualization (Queries Prometheus) | 2GB | 2GB  |
 
 ### Recommended - Production
 
