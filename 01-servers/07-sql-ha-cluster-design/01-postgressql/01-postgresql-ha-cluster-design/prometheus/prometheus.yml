@@ -1,0 +1,46 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  # -------------------------------
+  # HAProxy metrics
+  # -------------------------------
+  - job_name: haproxy
+    metrics_path: /stats;csv
+    params:
+      format: [csv]
+    static_configs:
+      - targets:
+          - 192.168.1.117:7000  # HAProxy stats page
+
+  # -------------------------------
+  # PostgreSQL metrics (Postgres Exporter)
+  # -------------------------------
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - 192.168.1.114:9187  # postgres1
+          - 192.168.1.115:9187  # postgres2
+          - 192.168.1.116:9187  # postgres3
+
+  # -------------------------------
+  # PgBouncer metrics (PgBouncer Exporter)
+  # -------------------------------
+  - job_name: pgbouncer
+    static_configs:
+      - targets:
+          - 192.168.1.114:9127  # pgbouncer1
+          - 192.168.1.115:9127  # pgbouncer2
+          - 192.168.1.116:9127  # pgbouncer3
+
+  # -------------------------------
+  # Optional: Node exporter (system metrics)
+  # -------------------------------
+  - job_name: node
+    static_configs:
+      - targets:
+          - 192.168.1.114:9100  # postgres1 node exporter
+          - 192.168.1.115:9100  # postgres2 node exporter
+          - 192.168.1.116:9100  # postgres3 node exporter
+          - 192.168.1.117:9100  # haproxy server

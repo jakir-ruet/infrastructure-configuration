@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Base box
+  BOX_NAME = "ubuntu/bionic64" # or ubuntu/focal64
+  BOX_MEMORY = 2048
+  BOX_DISK = 2 * 1024 # in MB
+
+  # List of all nodes
+  nodes = [
+    { name: "etcd1-server", ip: "192.168.1.111", role: "etcd" },
+    { name: "etcd2-server", ip: "192.168.1.112", role: "etcd" },
+    { name: "etcd3-server", ip: "192.168.1.113", role: "etcd" },
+    { name: "postgres1-server", ip: "192.168.1.114", role: "postgres" },
+    { name: "postgres2-server", ip: "192.168.1.115", role: "postgres" },
+    { name: "postgres3-server", ip: "192.168.1.116", role: "postgres" },
+    { name: "haproxy-server", ip: "192.168.1.117", role: "haproxy" },
+    { name: "prometheus-server", ip: "192.168.1.118", role: "prometheus" },
+    { name: "grafana-server", ip: "192.168.1.119", role: "grafana" }
+  ]
+
+  nodes.each do |node|
+    config.vm.define node[:name] do |node_config|
+      node_config.vm.box = BOX_NAME
+      node_config.vm.hostname = node[:name]
+      node_config.vm.network "private_network", ip: node[:ip]
+
+      # Provider-specific settings (VirtualBox)
+      node_config.vm.provider "virtualbox" do |vb|
+        vb.name = node[:name]
+        vb.memory = BOX_MEMORY
+        vb.cpus = 1
+        # Create virtual disk
+        vb.customize ["createhd", "--filename", "#{node[:name]}.vdi", "--size", BOX_DISK]
+        vb.customize ["storagectl", :id, "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAhci"]
+        vb.customize ["storageattach", :id, "--storagectl", "SATA Controller", "--port", 0, "--device", 0, "--type", "hdd", "--medium", "#{node[:name]}.vdi"]
+      end
+
+      # Provision: update, install basic tools, and update /etc/hosts
+      node_config.vm.provision "shell", inline: <<-SHELL
+        sudo apt-get update -y
+        sudo apt-get install -y vim curl wget net-tools
+        sudo hostnamectl set-hostname #{node[:name]}
+
+        # Add all nodes to /etc/hosts for internal resolution
+        cat <<EOF | sudo tee -a /etc/hosts
+			192.168.1.111 etcd1-server
+			192.168.1.112 etcd2-server
+			192.168.1.113 etcd3-server
+			192.168.1.114 postgres1-server
+			192.168.1.115 postgres2-server
+			192.168.1.116 postgres3-server
+			192.168.1.117 haproxy-server
+			192.168.1.118 prometheus-server
+			192.168.1.119 grafana-server
+			EOF
+      SHELL
+    end
+  end
+end

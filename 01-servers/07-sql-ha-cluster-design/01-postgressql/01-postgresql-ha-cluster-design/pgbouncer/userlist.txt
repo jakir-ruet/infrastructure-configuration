@@ -1,0 +1,2 @@
+"postgres" "md5<MD5_HASHED_PASSWORD>"
+"admin" "md5<MD5_HASHED_PASSWORD>"
