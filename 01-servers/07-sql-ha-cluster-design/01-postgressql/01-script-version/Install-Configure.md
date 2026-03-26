@@ -1,6 +1,6 @@
 ## Infrastructure Architecture
 
-![Infrastructure Architecture](/01-servers/07-sql-ha-cluster-design/01-postgressql/01-postgresql-ha-cluster-design/img/infra-design.png)
+![Infrastructure Architecture](/01-servers/07-sql-ha-cluster-design/01-postgressql/01-script-version/img/infra-design.png)
 
 ### Pre-Requisite
 
