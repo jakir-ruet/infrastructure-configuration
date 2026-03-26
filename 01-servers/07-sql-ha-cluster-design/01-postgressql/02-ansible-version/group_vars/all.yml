@@ -1,6 +1,14 @@
-common_packages:
-  - net-tools
-  - wget
-  - curl
-  - tar
-  - zip
+cluster_name: postgres-cluster
+
+etcd_cluster:
+  - { name: etcd1, ip: 192.168.1.111 }
+  - { name: etcd2, ip: 192.168.1.112 }
+  - { name: etcd3, ip: 192.168.1.113 }
+
+postgres_nodes:
+  - { name: postgres1, ip: 192.168.1.114 }
+  - { name: postgres2, ip: 192.168.1.115 }
+  - { name: postgres3, ip: 192.168.1.116 }
+
+postgres_version: 18
+postgres_password: "admin@123"

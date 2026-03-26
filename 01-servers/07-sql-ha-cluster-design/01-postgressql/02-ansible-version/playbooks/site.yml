@@ -1,0 +1,31 @@
+---
+- hosts: etcd
+  become: true
+  roles:
+    - common
+    - etcd
+
+- hosts: postgres
+  become: true
+  roles:
+    - common
+    - patroni
+    - postgres
+
+- hosts: haproxy
+  become: true
+  roles:
+    - common
+    - haproxy
+
+- hosts: prometheus
+  become: true
+  roles:
+    - common
+    - prometheus
+
+- hosts: grafana
+  become: true
+  roles:
+    - common
+    - grafana

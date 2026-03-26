@@ -1,0 +1,19 @@
+frontend postgres_write
+    bind *:5000
+    default_backend postgres_leader
+
+backend postgres_leader
+    option httpchk GET /primary
+    server postgres1 192.168.1.114:8008 check
+    server postgres2 192.168.1.115:8008 check
+    server postgres3 192.168.1.116:8008 check
+
+frontend postgres_read
+    bind *:5001
+    default_backend postgres_replicas
+
+backend postgres_replicas
+    option httpchk GET /replica
+    server postgres1 192.168.1.114:8008 check
+    server postgres2 192.168.1.115:8008 check
+    server postgres3 192.168.1.116:8008 check

@@ -1,0 +1,22 @@
+scope: {{ cluster_name }}
+namespace: /db/
+
+name: {{ inventory_hostname }}
+
+etcd:
+  hosts: {% for node in etcd_cluster %}{{ node.ip }}:2379{% if not loop.last %},{% endif %}{% endfor %}
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: {{ ansible_host }}:8008
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: {{ ansible_host }}:5432
+  data_dir: /data/patroni
+  bin_dir: /usr/lib/postgresql/{{ postgres_version }}/bin
+
+  authentication:
+    superuser:
+      username: postgres
+      password: {{ postgres_password }}
