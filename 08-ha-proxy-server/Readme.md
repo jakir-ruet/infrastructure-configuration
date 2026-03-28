@@ -1,6 +1,6 @@
 ## Architecture
 
-![Architecture](/img/haproxy-architecture.png)
+![Architecture](/08-ha-proxy-server/img/haproxy-architecture.png)
 
 ## Network & IPs
 
