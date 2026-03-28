@@ -243,6 +243,13 @@ LimitNOFILE=40000
 WantedBy=multi-user.target
 ```
 
+## Firewall (If enabled)
+
+```bash
+sudo ufw allow 2379/tcp
+sudo ufw allow 2380/tcp
+```
+
 ```bash
 sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
@@ -310,9 +317,18 @@ sudo systemctl stop etcd
 etcdctl endpoint status --write-out=table
 ```
 
-> Firewall (If enabled)
+## etcdctl
+
+It's the command-line tool for interacting with an etcd key-value store. Here are some essential commands organized by purpose
+
+- Check etcd cluster health
 
 ```bash
-sudo ufw allow 2379
-sudo ufw allow 2380
+etcdctl endpoint health
+```
+
+- List all endpoints
+
+```bash
+etcdctl endpoint status --write-out=table
 ```
