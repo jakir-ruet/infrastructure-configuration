@@ -3,3 +3,4 @@
 /.ansible
 /.venv
 /.DS_Store
+/cloud-native-devops-app/transactions-app/node_modules

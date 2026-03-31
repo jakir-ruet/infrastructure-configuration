@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=localhost
+      - DB_USER=jakir
+      - DB_PWD=Sql@054003
+      - DB_DATABASE=transactionsdb
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: Sql@054003
+      MYSQL_DATABASE: transactionsdb
+    ports:
+      - "3306:3306"
