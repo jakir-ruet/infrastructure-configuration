@@ -1,61 +1,64 @@
-# 🏗️ Infrastructure Setup Guide
 
-![Infrastructure Architecture](k8-infra.drawio.svg)
-
-## 📋 Overview
+## Overview
 
 This directory contains the Terraform configurations for setting up the complete cloud infrastructure. The infrastructure is created in a specific sequence to ensure proper dependency management and resource availability.
 
-## 🔧 Components
+## Infrastructure Setup Guide
+
+![Infrastructure Architecture](/cloud-native-devops-app/terraform/k8-infra.svg)
+
+## Components
 
 ### Required Components
-1. **VPC** (00-vpc/)
+
+1. **VPC** (01-vpc/)
    - Multi-AZ setup
    - Public, Private, and DB subnets
    - Internet and NAT Gateways
    - Route tables and associations
 
-2. **Security Groups** (10-sg/)
+2. **Security Groups** (02-sg/)
    - Properly segmented security rules
    - Least privilege access
    - Service-specific ingress/egress rules
 
-3. **Bastion Host** (20-bastion/)
+3. **Bastion Host** (03-bastion/)
    - Secure jump server for cluster access
    - Used for RDS and EKS management
    - Hardened security configuration
 
-4. **RDS** (30-db/)
+4. **RDS** (04-db/)
    - MySQL database in private subnet
    - Multi-AZ deployment
    - Automated backups
    - Custom parameter groups
 
-5. **EKS** (40-eks/)
+5. **EKS** (05-eks/)
    - Managed Kubernetes cluster
    - Auto-scaling node groups
    - OIDC provider configuration
    - Add-ons management
 
-6. **ACM** (50-acm/)
+6. **ACM** (06-acm/)
    - SSL/TLS certificates
    - Domain validation
    - Wildcard certificates
    - Auto-renewal setup
 
-7. **ALB Ingress Controller** (60-ingress-alb/)
+7. **ALB Ingress Controller** (07-ingress-alb/)
    - Application Load Balancer
    - SSL termination
    - Path-based routing
    - Health checks
 
-8. **ECR** (70-ecr/)
+8. **ECR** (08-ecr/)
    - Container registry
    - Image scanning
    - Lifecycle policies
    - Cross-account access
 
 ### Optional Components
+
 1. **VPN**
    - Alternative to Bastion host
    - Direct access from Windows laptops
@@ -67,101 +70,116 @@ This directory contains the Terraform configurations for setting up the complete
    - HTTPS enforcement
    - Custom domain support
 
-## 🚀 Deployment Sequence
+## Deployment Sequence
 
 ### 1. VPC Setup (Required)
+
 ```bash
-cd 00-vpc
+cd 01-vpc
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 2. Security Groups (Required)
+
 ```bash
-cd ../10-sg
+cd ../02-sg
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 3. Bastion Host (Required)
+
 ```bash
-cd ../20-bastion
+cd ../03-bastion
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 4. Database (Required)
+
 ```bash
-cd ../30-db
+cd ../04-db
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 5. EKS Cluster (Required)
+
 ```bash
-cd ../40-eks
+cd ../05-eks
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 6. SSL Certificates (Required)
+
 ```bash
-cd ../50-acm
+cd ../06-acm
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 7. Ingress Controller (Required)
+
 ```bash
-cd ../60-ingress-alb
+cd ../07-ingress-alb
 terraform init
 terraform plan
 terraform apply
 ```
 
 ### 8. Container Registry (Required)
+
 ```bash
-cd ../70-ecr
+cd ../07-ecr
 terraform init
 terraform plan
 terraform apply
 ```
 
-## 🛠️ Administrative Tasks
+## Administrative Tasks
 
 ### Bastion Host Access
+
 1. SSH to bastion:
-   ```bash
-   ssh -i "path/to/key.pem" ubuntu@<bastion-public-ip>
-   ```
+
+```bash
+ssh -i "path/to/key.pem" ubuntu@<bastion-public-ip>
+```
 
 2. Configure AWS CLI:
-   ```bash
-   aws configure
-   # Enter your AWS credentials when prompted
-   ```
+
+```bash
+aws configure
+# Enter your AWS credentials when prompted
+```
 
 3. Configure kubectl:
-   ```bash
-   aws eks update-kubeconfig --region us-east-1 --name <cluster-name>
-   ```
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name <cluster-name>
+```
 
 4. Verify cluster access:
-   ```bash
-   kubectl get nodes
-   ```
+
+```bash
+kubectl get nodes
+```
 
 ### Database Management
+
 1. Connect to RDS through bastion:
-   ```bash
-   mysql -h <db-r53-address> -u root -pExpenseApp1
-   ```
+
+```bash
+mysql -h <db-r53-address> -u root -pExpenseApp1
+```
 
 2. Initialize database:
    - Schema is created during RDS provisioning
@@ -173,55 +191,62 @@ terraform apply
 ### Ingress Controller Setup
 
 1. Create OIDC provider:
-   ```bash
-   eksctl utils associate-iam-oidc-provider \
-     --region us-east-1 \
-     --cluster <cluster-name> \
-     --approve
-   ```
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+   --region us-east-1 \
+   --cluster <cluster-name> \
+   --approve
+```
 
 2. Download IAM policy:
-   ```bash
-   curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.8.1/docs/install/iam_policy.json
+
+```bash
+curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.8.1/docs/install/iam_policy.json
    ```
 
 3. Create IAM policy:
-   ```bash
-   aws iam create-policy \
-     --policy-name AWSLoadBalancerControllerIAMPolicy \
-     --policy-document file://iam-policy.json
+
+```bash
+aws iam create-policy \
+   --policy-name AWSLoadBalancerControllerIAMPolicy \
+   --policy-document file://iam-policy.json
    ```
 
 4. Create service account:
-   ```bash
-   eksctl create iamserviceaccount \
-     --cluster=<cluster-name> \
-     --namespace=kube-system \
-     --name=aws-load-balancer-controller \
-     --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
-     --override-existing-serviceaccounts \
-     --approve
-   ```
+
+```bash
+eksctl create iamserviceaccount \
+   --cluster=<cluster-name> \
+   --namespace=kube-system \
+   --name=aws-load-balancer-controller \
+   --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
+   --override-existing-serviceaccounts \
+   --approve
+```
 
 5. Install Load Balancer Controller:
-   ```bash
-   # Add Helm repo
-   helm repo add eks https://aws.github.io/eks-charts
 
-   # Install controller
-   helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
-     -n kube-system \
-     --set clusterName=<cluster-name> \
-     --set serviceAccount.create=false \
-     --set serviceAccount.name=aws-load-balancer-controller
-   ```
+```bash
+# Add Helm repo
+helm repo add eks https://aws.github.io/eks-charts
+
+# Install controller
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+   -n kube-system \
+   --set clusterName=<cluster-name> \
+   --set serviceAccount.create=false \
+   --set serviceAccount.name=aws-load-balancer-controller
+```
 
 6. Verify installation:
-   ```bash
-   kubectl get pods -n kube-system | grep aws-load-balancer-controller
-   ```
 
-## 📝 Notes
+```bash
+kubectl get pods -n kube-system | grep aws-load-balancer-controller
+```
+
+## Notes
+
 - Always follow the deployment sequence to avoid dependency issues
 - Back up Terraform state files regularly
 - Use consistent tagging for resources
